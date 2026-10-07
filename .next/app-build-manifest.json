@@ -6,40 +6,40 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/(protected)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/(protected)/layout.js"
     ],
-    "/dashboard/page": [
+    "/(protected)/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/(protected)/dashboard/page.js"
     ],
-    "/projects/page": [
+    "/(public)/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/projects/page.js"
+      "static/chunks/app/(public)/page.js"
     ],
-    "/login/page": [
+    "/(public)/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/(public)/login/page.js"
     ],
-    "/register/page": [
+    "/(public)/register/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/register/page.js"
+      "static/chunks/app/(public)/register/page.js"
     ],
-    "/tasks/page": [
+    "/(protected)/projects/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tasks/page.js"
+      "static/chunks/app/(protected)/projects/page.js"
     ],
-    "/_not-found/page": [
+    "/(protected)/tasks/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(protected)/tasks/page.js"
     ]
   }
 }

@@ -1,8 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/login/page": "app/login/page.js",
-  "/register/page": "app/register/page.js",
-  "/page": "app/page.js",
-  "/tasks/page": "app/tasks/page.js"
+  "/(public)/page": "app/(public)/page.js",
+  "/(public)/login/page": "app/(public)/login/page.js",
+  "/(protected)/dashboard/page": "app/(protected)/dashboard/page.js",
+  "/(protected)/projects/page": "app/(protected)/projects/page.js",
+  "/(protected)/tasks/page": "app/(protected)/tasks/page.js"
 }
