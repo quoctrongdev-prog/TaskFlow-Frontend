@@ -61,3 +61,9 @@ export async function getUserProfile(
 
   return response.data;
 }
+
+// export async function getUserProfile() {
+//   const response = await api.get("/users/user-profile");
+
+//   return response.data;
+// }

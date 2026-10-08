@@ -16,6 +16,7 @@ import {
 import { getUserProfile } from "@/lib/api";
 import { type User, type LoginData } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { setAccessToken as setStoredAccessToken } from "@/lib/tokenStore";
 
 type AuthContextType = {
   user: User | null;
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // 2. Lưu access token vào state
       setAccessToken(response.accessToken);
+      setStoredAccessToken(response.accessToken);
 
       // 3. Lấy thông tin user
       // Đây là request thứ 2 sau khi login
@@ -72,10 +74,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function logout() {
     try {
       await logoutApi();
-      router.push("/")
+      router.push("/");
     } finally {
       setUser(null);
       setAccessToken(null);
+      setStoredAccessToken(null);
     }
   }
 
@@ -92,6 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // 2. Lưu access token mới
         setAccessToken(response.accessToken);
+        setStoredAccessToken(response.accessToken);
 
         // 3. Lấy user hiện tại
         const profileResponse = await getUserProfile(response.accessToken);
