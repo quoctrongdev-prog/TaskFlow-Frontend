@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { type InternalAxiosRequestConfig } from "axios";
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
@@ -62,6 +63,15 @@ export type AuthContextType = {
   logout: () => Promise<void>;
 };
 
-export type AuthProviderProps = {
-  children: ReactNode;
+// export type AuthProviderProps = {
+//   children: ReactNode;
+// };
+
+export type RetryRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
+
+export type FailedRequest = {
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
 };

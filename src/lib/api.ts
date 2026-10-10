@@ -1,33 +1,41 @@
-import { api, apiMail, apiUser } from "./client";
-import {
+import { api, apiAuth, apiMail, apiRefresh } from "./client";
+import type {
   AuthResponse,
   LoginData,
   RegisterData,
   UserProfileResponse,
 } from "./types";
 
-//File này chỉ chịu trách nhiệm gọi Auth API.
+//File này chỉ chịu trách nhiệm gọi API.
 
 export async function register(data: RegisterData): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>("/register", data);
+  const response = await apiAuth.post<AuthResponse>("/register", data);
 
   return response.data;
 }
 
 export async function login(data: LoginData): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>("/login", data);
+  const response = await apiAuth.post<AuthResponse>("/login", data);
 
   return response.data;
 }
 
+// export async function refreshAccessToken(): Promise<AuthResponse> {
+//   const response = await api.post<AuthResponse>("/refresh-token");
+
+//   return response.data;
+// }
+
 export async function refreshAccessToken(): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>("/refresh-token");
+  const response = await apiRefresh.post<AuthResponse>(
+    "/auth/refresh-token",
+  );
 
   return response.data;
 }
 
 export async function logout(): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>("/logout");
+  const response = await apiAuth.post<AuthResponse>("/logout");
 
   return response.data;
 }
@@ -50,14 +58,31 @@ export async function resendVerificationEmail(
   return response.data;
 }
 
-export async function getUserProfile(
-  accessToken: string,
-): Promise<UserProfileResponse> {
-  const response = await apiUser.get<UserProfileResponse>("/user-profile", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+// export async function getUserProfile(
+//   accessToken: string,
+// ): Promise<UserProfileResponse> {
+//   const response = await apiUser.get<UserProfileResponse>("/user-profile", {
+//     headers: {
+//       Authorization: `Bearer ${accessToken}`,
+//     },
+//   });
+
+//   return response.data;
+// }
+
+// export async function getUserProfile(): Promise<UserProfileResponse> {
+//   const response = await api.get<UserProfileResponse>(
+//     "/users/user-profile",
+//   );
+
+//   return response.data;
+// }
+
+// Lấy profile: Access Token do interceptor gắn tự động
+export async function getUserProfile(): Promise<UserProfileResponse> {
+  const response = await api.get<UserProfileResponse>(
+    "/users/user-profile",
+  );
 
   return response.data;
 }

@@ -1,23 +1,14 @@
+//Lưu Access Token trong bộ nhớ JavaScript
+//Tìm hiểu thêm
 let accessToken: string | null = null;
 
-let onTokenRefreshed: ((token: string) => void) | null = null;
-
-export function getAccessToken() {
+//Hàm này chỉ đọc giá trị accessToken sau khi đã 
+//được cập nhật bởi setAccessToken
+export function getAccessToken(): string | null {
   return accessToken;
 }
 
-export function setAccessToken(token: string | null) {
+//Biến được cập nhật khi gọi hàm setter (setAccessToken)
+export function setAccessToken(token: string | null): void {
   accessToken = token;
-
-  if (token && onTokenRefreshed) {
-    onTokenRefreshed(token);
-  }
-}
-
-export function subscribeToTokenRefresh(callback: (token: string) => void) {
-  onTokenRefreshed = callback;
-
-  return () => {
-    onTokenRefreshed = null;
-  };
 }
