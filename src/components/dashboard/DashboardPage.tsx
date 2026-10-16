@@ -3,11 +3,9 @@ import DashboardMetrics from "./DashboardMetrics";
 import ProjectsOverview from "./ProjectsOverview";
 import UpcomingTasks from "./UpcomingTasks";
 import RecentActivity from "./RecentActivity";
-import AppShell from "../layout/AppShell";
 
 export default function DashboardPage() {
   return (
-    <AppShell>
       <div className="mx-auto max-w-7xl">
         <DashboardHeader />
 
@@ -20,6 +18,5 @@ export default function DashboardPage() {
 
         <RecentActivity />
       </div>
-    </AppShell>
   );
 }

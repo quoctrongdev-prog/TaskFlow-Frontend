@@ -6,8 +6,6 @@ import AuthBrand from "./AuthBrand";
 import AuthForm from "./AuthForm";
 
 export default function AuthPage({ mode }: { mode: "login" | "register" }) {
-  const register = mode === "register";
-
   return (
     <main className="flex min-h-screen bg-white">
       {/* Left side */}

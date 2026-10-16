@@ -1,60 +1,45 @@
+
 import Link from "next/link";
-import { FolderKanban, MoreHorizontal, Users } from "lucide-react";
+import { FolderKanban, MoreHorizontal } from "lucide-react";
+import { Project } from "@/lib/types";
 
 type ProjectCardProps = {
-  project: {
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-    completed: number;
-    tasks: number;
-    progress: number;
-  };
+  project: Project;
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div className="card relative p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
-      <Link href="/tasks" className="block">
-        <div className="flex items-start justify-between">
-          <div
-            className={`flex h-11 w-11 items-center justify-center rounded-xl ${project.color} text-white`}
-          >
-            <FolderKanban size={21} />
-          </div>
+      <Link
+        href={`/projects/${project.project_id}`}
+        className="block"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
+          <FolderKanban size={21} />
         </div>
 
-        <h2 className="mt-5 font-bold">{project.name}</h2>
+        <h2 className="mt-5 font-bold text-slate-900">
+          {project.name}
+        </h2>
 
-        <p className="mt-1 h-10 text-sm leading-5 text-slate-500">
-          {project.description}
+        <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">
+          {project.description || "No description provided."}
         </p>
 
-        <div className="mt-5 flex items-center justify-between text-xs text-slate-500">
-          <span>
-            {project.completed}/{project.tasks} tasks
+        {project.created_by_name && (
+          <span className="mt-4 inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            {project.created_by_name}
           </span>
-
-          <span className="font-bold text-slate-700">{project.progress}%</span>
-        </div>
-
-        <div className="mt-2 h-2 rounded-full bg-slate-100">
-          <div
-            className="h-2 rounded-full bg-brand-600"
-            style={{ width: `${project.progress}%` }}
-          />
-        </div>
-
-        <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4 text-xs text-slate-400">
-          <Users size={15} />8 members
-        </div>
+        )}
       </Link>
 
       <button
         type="button"
-        className="absolute right-5 top-5 text-slate-400"
+        className="absolute right-5 top-5 text-slate-400 hover:text-slate-700"
         aria-label="More options"
+        onClick={() => {
+          // Sẽ nối menu Edit/Delete ở bước tiếp theo.
+        }}
       >
         <MoreHorizontal />
       </button>

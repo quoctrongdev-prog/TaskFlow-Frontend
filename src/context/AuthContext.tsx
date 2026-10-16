@@ -15,25 +15,17 @@ import {
 } from "@/lib/api";
 
 import { getUserProfile } from "@/lib/api";
-import { type User, type LoginData } from "@/lib/types";
+import {
+  type User,
+  type LoginData,
+  AuthContextType,
+  AuthProviderProps,
+} from "@/lib/types";
 import { usePathname, useRouter } from "next/navigation";
 import { setAccessToken as setStoredAccessToken } from "@/lib/tokenStore";
 import { setupInterceptors } from "@/lib/interceptor";
 
-type AuthContextType = {
-  user: User | null;
-  accessToken: string | null;
-  loading: boolean;
-
-  login: (data: LoginData) => Promise<void>;
-  logout: () => Promise<void>;
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-type AuthProviderProps = {
-  children: ReactNode;
-};
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
@@ -55,6 +47,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
     setAccessToken(null);
     setStoredAccessToken(null);
+  }
+
+  function updateAuthUser(updatedFields: Partial<User>) {
+    setUser((previous) =>
+      previous ? { ...previous, ...updatedFields } : previous,
+    );
   }
 
   //data: là 1 object gồm email và password
@@ -146,6 +144,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         loading,
         login,
         logout,
+        updateAuthUser
       }}
     >
       {children}

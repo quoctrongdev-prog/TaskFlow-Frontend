@@ -6,14 +6,15 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+//Axios sẽ tự xác định kiểu dữ liệu của request.
+//headers: {
+//   "Content-Type": "application/json",
+// },
 const api = axios.create({
   baseURL: API_URL,
   //credentials: true để xử lý httpOnly refreshToken
   //nên frontend phải cho phép browser gửi/nhận cookie.
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 const apiAuth = axios.create({

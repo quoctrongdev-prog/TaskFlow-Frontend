@@ -14,16 +14,6 @@ export type Task = {
   dueDate: string;
 };
 
-export type Project = {
-  id: string;
-  name: string;
-  description: string;
-  progress: number;
-  tasks: number;
-  completed: number;
-  color: string;
-};
-
 export type RegisterData = {
   name: string;
   email: string;
@@ -54,6 +44,25 @@ export type UserProfileResponse = {
   user: User;
 };
 
+export type ChangePasswordData = {
+  password: string;
+  newPassword: string;
+};
+
+export type MessageResponse = {
+  message: string;
+};
+
+export type UpdateUserData = {
+  name: string;
+};
+
+export type UserAvatar = {
+   message: string; 
+   url: string; 
+   public_id: string
+}
+
 export type AuthContextType = {
   user: User | null;
   accessToken: string | null;
@@ -61,7 +70,14 @@ export type AuthContextType = {
 
   login: (data: LoginData) => Promise<void>;
   logout: () => Promise<void>;
+
+  updateAuthUser: (updatedFields: Partial<User>) => void;
 };
+
+export type AuthProviderProps = {
+  children: ReactNode;
+};
+
 
 // export type AuthProviderProps = {
 //   children: ReactNode;
@@ -75,3 +91,25 @@ export type FailedRequest = {
   resolve: (token: string) => void;
   reject: (error: unknown) => void;
 };
+
+export type Project = {
+  project_id: string;
+  name: string;
+  description: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at?: string;
+  role?: "Admin" | "Member";
+  created_by_name: string; // Thêm trường này để lưu tên người tạo
+};
+
+export type ProjectResponse = {
+  message: string;
+  project: Project | Project[];
+};
+
+export type ProjectDetailResponse = {
+  message: string;
+  projectDetail: Project;
+};
+

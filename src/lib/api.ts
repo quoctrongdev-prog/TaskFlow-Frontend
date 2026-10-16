@@ -1,8 +1,15 @@
 import { api, apiAuth, apiMail, apiRefresh } from "./client";
 import type {
   AuthResponse,
+  ChangePasswordData,
   LoginData,
+  MessageResponse,
+  Project,
+  ProjectDetailResponse,
+  ProjectResponse,
   RegisterData,
+  UpdateUserData,
+  UserAvatar,
   UserProfileResponse,
 } from "./types";
 
@@ -27,9 +34,7 @@ export async function login(data: LoginData): Promise<AuthResponse> {
 // }
 
 export async function refreshAccessToken(): Promise<AuthResponse> {
-  const response = await apiRefresh.post<AuthResponse>(
-    "/auth/refresh-token",
-  );
+  const response = await apiRefresh.post<AuthResponse>("/auth/refresh-token");
 
   return response.data;
 }
@@ -80,10 +85,49 @@ export async function resendVerificationEmail(
 
 // Lấy profile: Access Token do interceptor gắn tự động
 export async function getUserProfile(): Promise<UserProfileResponse> {
-  const response = await api.get<UserProfileResponse>(
-    "/users/user-profile",
-  );
+  const response = await api.get<UserProfileResponse>("/users/user-profile");
 
+  return response.data;
+}
+
+export async function updateUser(
+  data: UpdateUserData,
+): Promise<UserProfileResponse> {
+  const response = await api.patch<UserProfileResponse>(
+    "/users/update-user",
+    data,
+  );
+  return response.data;
+}
+
+export async function changePassword(
+  data: ChangePasswordData,
+): Promise<MessageResponse> {
+  const response = await api.patch<MessageResponse>(
+    "/users/change-password",
+    data,
+  );
+  return response.data;
+}
+
+export async function uploadAvatar(file: File): Promise<UserAvatar> {
+  //FormData là một đối tượng JavaScript dùng để đóng gói dữ 
+  //liệu gửi qua HTTP request, đặc biệt hữu ích khi gửi file.
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post<UserAvatar>("/avatar/upload", formData);
+
+  // Axios trả về một response object chứa nhiều thông tin, ví dụ:
+  // response.status
+  // response.headers
+  // response.data: data chính là dữ liệu JSON do backend trả về Ví dụ:
+  // {
+  //   "message": "Avatar uploaded successfully",
+  //   "url": "https://example.com/avatar.png",
+  //   "public_id": "avatars/user123"
+  // }
+  
   return response.data;
 }
 
@@ -92,3 +136,110 @@ export async function getUserProfile(): Promise<UserProfileResponse> {
 
 //   return response.data;
 // }
+
+export async function sendResetPassword(email: string) {
+  const response = await apiMail.post("/reset-link", { email });
+  return response.data;
+}
+
+export async function resetPassword(
+  token: string,
+  reset_password: string
+) {
+  //encodeURIComponent: mục đích của nó chỉ là xử lý URL.
+  //giúp token được truyền chính xác qua URL
+  //đặc biệt khi token chứa ký tự đặc biệt.
+  const response = await apiMail.post(
+    `/reset-password?token=${encodeURIComponent(token)}`,
+    { reset_password }
+  );
+
+  return response.data;
+}
+
+
+// Lấy danh sách project
+export async function getProjects(): Promise<Project[]> {
+  const response = await api.get<ProjectResponse>(
+    "/project/get-projects",
+  );
+
+  
+  return Array.isArray(response.data.project)
+    ? response.data.project
+    : [];
+}
+
+// Tạo project
+export async function createProject(data: {
+  name: string;
+  description: string;
+}): Promise<Project> {
+  const response = await api.post<ProjectResponse>(
+    "/project/create-project",
+    data,
+  );
+
+  return response.data.project as Project;
+}
+
+// Lấy chi tiết project
+export async function getProjectDetail(
+  projectId: string,
+): Promise<Project> {
+  const response = await api.get<ProjectDetailResponse>(
+    `/project/${projectId}`,
+  );
+
+  return response.data.projectDetail;
+}
+
+// Cập nhật project
+export async function updateProject(
+  projectId: string,
+  data: { name: string; description: string },
+): Promise<void> {
+  await api.patch(`/project/update/${projectId}`, data);
+}
+
+// Xóa project
+export async function deleteProject(
+  projectId: string,
+): Promise<void> {
+  await api.delete(`/project/delete/${projectId}`);
+}
+
+export async function sendProjectInvitation(
+  projectId: string,
+  email: string,
+) {
+  const response = await api.post(
+    `/project/send-invitation/${projectId}`,
+    { email },
+  );
+
+  return response.data;
+}
+
+export async function acceptProjectInvitation(token: string) {
+  const response = await api.post(
+    "/project/accept-invitation",
+    { token },
+  );
+
+  return response.data;
+}
+
+
+export async function updateProjectMemberRole(
+  projectId: string,
+  userId: string,
+  role: "Admin" | "Member",
+) {
+  const response = await api.patch(
+    `/project/update-role/${projectId}/${userId}`,
+    { role },
+  );
+
+  return response.data;
+}

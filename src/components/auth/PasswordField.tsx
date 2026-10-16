@@ -7,6 +7,7 @@ type PasswordFieldProps = {
   setShowPassword: (value: boolean) => void;
   value: string;
   onChange: (value: string) => void;
+  minLength?: number;
 };
 
 export default function PasswordField({
@@ -25,6 +26,7 @@ export default function PasswordField({
           placeholder="••••••••"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          minLength={8}
           className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-11 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
         />
 

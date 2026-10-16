@@ -32,7 +32,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   //Dưới này đặt tên lại thì là dùng :
   //từ login sang loginUser
 
-  const {login: loginUser } = useAuth(); 
+  const { login: loginUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -110,6 +110,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           type="email"
           placeholder="you@example.com"
           value={email}
+          autoComplete="email"
           onChange={setEmail}
         />
 
@@ -119,6 +120,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
           value={password}
           onChange={setPassword}
         />
+
+        {mode === "login" && (
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-brand-600 transition hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        )}
 
         {error && <p className="text-sm font-medium text-red-500">{error}</p>}
 

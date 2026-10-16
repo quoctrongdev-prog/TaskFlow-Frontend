@@ -6,7 +6,6 @@ import TasksHeader from "./TasksHeader";
 import TasksToolbar from "./TasksToolbar";
 import TaskBoard from "./TaskBoard";
 import TaskList from "./TaskList";
-import AppShell from "../layout/AppShell";
 import { Priority, TaskStatus } from "@/lib/types";
 
 export default function TasksPage() {
@@ -34,7 +33,6 @@ export default function TasksPage() {
   }
 
   return (
-    <AppShell>
       <div className="mx-auto max-w-7xl">
         <TasksHeader />
 
@@ -55,6 +53,5 @@ export default function TasksPage() {
           <TaskList tasks={filtered} />
         )}
       </div>
-    </AppShell>
   );
 }

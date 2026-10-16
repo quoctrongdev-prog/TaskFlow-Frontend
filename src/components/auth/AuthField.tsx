@@ -3,6 +3,7 @@ type AuthFieldProps = {
   type?: string;
   placeholder: string;
   value: string;
+  autoComplete?: string;
   onChange: (value: string) => void;
 };
 

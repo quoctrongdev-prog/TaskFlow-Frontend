@@ -7,6 +7,6 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return <ProtectRoute>
-        {children}
-    </ProtectRoute>;
+    <AppShell>{children}</AppShell>
+  </ProtectRoute>;
 }
