@@ -2,12 +2,17 @@ import { api, apiAuth, apiMail, apiRefresh } from "./client";
 import type {
   AuthResponse,
   ChangePasswordData,
+  CreateTaskData,
   LoginData,
   MessageResponse,
   Project,
   ProjectDetailResponse,
   ProjectResponse,
   RegisterData,
+  Task,
+  TaskResponse,
+  TasksResponse,
+  UpdateTaskData,
   UpdateUserData,
   UserAvatar,
   UserProfileResponse,
@@ -111,7 +116,7 @@ export async function changePassword(
 }
 
 export async function uploadAvatar(file: File): Promise<UserAvatar> {
-  //FormData là một đối tượng JavaScript dùng để đóng gói dữ 
+  //FormData là một đối tượng JavaScript dùng để đóng gói dữ
   //liệu gửi qua HTTP request, đặc biệt hữu ích khi gửi file.
   const formData = new FormData();
   formData.append("file", file);
@@ -127,7 +132,7 @@ export async function uploadAvatar(file: File): Promise<UserAvatar> {
   //   "url": "https://example.com/avatar.png",
   //   "public_id": "avatars/user123"
   // }
-  
+
   return response.data;
 }
 
@@ -142,32 +147,23 @@ export async function sendResetPassword(email: string) {
   return response.data;
 }
 
-export async function resetPassword(
-  token: string,
-  reset_password: string
-) {
+export async function resetPassword(token: string, reset_password: string) {
   //encodeURIComponent: mục đích của nó chỉ là xử lý URL.
   //giúp token được truyền chính xác qua URL
   //đặc biệt khi token chứa ký tự đặc biệt.
   const response = await apiMail.post(
     `/reset-password?token=${encodeURIComponent(token)}`,
-    { reset_password }
+    { reset_password },
   );
 
   return response.data;
 }
 
-
 // Lấy danh sách project
 export async function getProjects(): Promise<Project[]> {
-  const response = await api.get<ProjectResponse>(
-    "/project/get-projects",
-  );
+  const response = await api.get<ProjectResponse>("/project/get-projects");
 
-  
-  return Array.isArray(response.data.project)
-    ? response.data.project
-    : [];
+  return Array.isArray(response.data.project) ? response.data.project : [];
 }
 
 // Tạo project
@@ -184,9 +180,7 @@ export async function createProject(data: {
 }
 
 // Lấy chi tiết project
-export async function getProjectDetail(
-  projectId: string,
-): Promise<Project> {
+export async function getProjectDetail(projectId: string): Promise<Project> {
   const response = await api.get<ProjectDetailResponse>(
     `/project/${projectId}`,
   );
@@ -203,33 +197,23 @@ export async function updateProject(
 }
 
 // Xóa project
-export async function deleteProject(
-  projectId: string,
-): Promise<void> {
+export async function deleteProject(projectId: string): Promise<void> {
   await api.delete(`/project/delete/${projectId}`);
 }
 
-export async function sendProjectInvitation(
-  projectId: string,
-  email: string,
-) {
-  const response = await api.post(
-    `/project/send-invitation/${projectId}`,
-    { email },
-  );
+export async function sendProjectInvitation(projectId: string, email: string) {
+  const response = await api.post(`/project/send-invitation/${projectId}`, {
+    email,
+  });
 
   return response.data;
 }
 
 export async function acceptProjectInvitation(token: string) {
-  const response = await api.post(
-    "/project/accept-invitation",
-    { token },
-  );
+  const response = await api.post("/project/accept-invitation", { token });
 
   return response.data;
 }
-
 
 export async function updateProjectMemberRole(
   projectId: string,
@@ -242,4 +226,60 @@ export async function updateProjectMemberRole(
   );
 
   return response.data;
+}
+
+/* Lấy danh sách task thuộc một project */
+export async function getTasks(projectId: string): Promise<Task[]> {
+  const response = await api.get<TasksResponse>(
+    `/tasks/projects/${projectId}/tasks`,
+  );
+
+  return response.data.tasks;
+}
+
+/* Tạo task trong project */
+export async function createTask(
+  projectId: string,
+  data: CreateTaskData,
+): Promise<Task> {
+  const response = await api.post<TaskResponse>(
+    `/tasks/projects/${projectId}/tasks`,
+    data,
+  );
+
+  return response.data.task;
+}
+
+/* Lấy chi tiết một task */
+export async function getTaskDetail(taskId: string): Promise<Task> {
+  const response = await api.get<TaskResponse>(`/tasks/${taskId}`);
+
+  return response.data.task;
+}
+
+/* Cập nhật thông tin task */
+export async function updateTask(
+  taskId: string,
+  data: UpdateTaskData,
+): Promise<Task> {
+  const response = await api.patch<TaskResponse>(`/tasks/${taskId}`, data);
+
+  return response.data.task;
+}
+
+/* Cập nhật riêng trạng thái task */
+export async function updateTaskStatus(
+  taskId: string,
+  status: Task["status"],
+): Promise<Task> {
+  const response = await api.patch<TaskResponse>(`/tasks/${taskId}/status`, {
+    status,
+  });
+
+  return response.data.task;
+}
+
+/* Xóa task */
+export async function deleteTask(taskId: string): Promise<void> {
+  await api.delete(`/tasks/${taskId}`);
 }

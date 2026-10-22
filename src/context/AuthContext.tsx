@@ -37,18 +37,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // cũng có thể đặt tên là isRestoringSession
   const [loading, setLoading] = useState(true);
 
-  //biến theo dõi đường dẫn (URL)
-  const pathname = usePathname();
-  //initialPathname giúp chúng ta xác định trang người dùng đang
-  //mở lúc ứng dụng bắt đầu khôi phục phiên đăng nhập.
-  const initialPathname = useRef(pathname);
-
   function clearAuthSession() {
     setUser(null);
     setAccessToken(null);
     setStoredAccessToken(null);
   }
 
+  //Partial<User>: 1 phần User không cần lấy hết thuộc tính User
   function updateAuthUser(updatedFields: Partial<User>) {
     setUser((previous) =>
       previous ? { ...previous, ...updatedFields } : previous,
@@ -105,6 +100,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       router.replace("/login");
     }
 
+    //window sống lâu hơn component. Component có thể unmount rồi, nhưng listener vẫn nằm trên window → memory leak:
+    //addEventListener là "gắn dây", removeEventListener là "rút dây". React yêu cầu bạn rút dây khi không cần nữa để không rò rỉ bộ nhớ.
+    //Nếu không cleanup: lặp → 10 listener cho 1 sự kiện → memory leak
     window.addEventListener("auth:session-expired", handleSessionExpired);
 
     return () => {

@@ -21,7 +21,7 @@ export default function CreateProjectModal({
     event.preventDefault();
     setError("");
 
-    console.log("Description state:", JSON.stringify(description));
+    // console.log("Description state:", JSON.stringify(description));
 
     if (!name.trim()) {
       setError("Project name is required.");
@@ -36,7 +36,7 @@ export default function CreateProjectModal({
         description: description.trim(),
       };
 
-      console.log("Project data:", projectData);
+      // console.log("Project data:", projectData);
 
       await createProject(projectData);
 
@@ -62,6 +62,8 @@ export default function CreateProjectModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onMouseDown={(event) => {
+        //target: phần tử thực sự mà bạn nhấn chuột vào.
+        //currentTarget: phần tử đang gắn sự kiện onMouseDown, ở đây luôn là div nền ngoài.
         if (event.target === event.currentTarget) onClose();
       }}
     >

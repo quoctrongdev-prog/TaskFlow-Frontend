@@ -43,7 +43,7 @@ export default function ProfilePage() {
     if (authLoading) return;
 
     if (user) {
-      setName(user.name ?? "");
+      setName(user.name ?? "John Doe");
       setLoading(false);
       return;
     }
@@ -91,6 +91,7 @@ export default function ProfilePage() {
       return;
     }
 
+    //5MB
     if (file.size > 5 * 1024 * 1024) {
       setErrorMessage("Ảnh không được vượt quá 5 MB.");
       return;
@@ -160,28 +161,28 @@ export default function ProfilePage() {
     try {
       setChangingPassword(true);
 
-      console.log("1. Bắt đầu gọi API");
+      // console.log("1. Bắt đầu gọi API");
 
       const response = await changePassword({
         password: currentPassword,
         newPassword,
       });
 
-      console.log("2. API response:", response);
+      // console.log("2. API response:", response);
 
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
 
-      console.log("3. Chuẩn bị set success message:", response.message);
+      // console.log("3. Chuẩn bị set success message:", response.message);
 
-      console.log("API response:", response);
-      console.log("Message:", response.message);
+      // console.log("API response:", response);
+      // console.log("Message:", response.message);
 
       setSuccessMessage(response.message);
       setErrorMessage("");
     } catch (error) {
-      console.error("4. Change password error:", error);
+      // console.error("4. Change password error:", error);
 
       setErrorMessage("Đổi mật khẩu thất bại. Hãy kiểm tra mật khẩu hiện tại.");
       setSuccessMessage("");

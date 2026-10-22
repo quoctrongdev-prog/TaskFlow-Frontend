@@ -1,18 +1,50 @@
 import { ReactNode } from "react";
 import { type InternalAxiosRequestConfig } from "axios";
 
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
-export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type TaskPriority = "Low" | "Medium" | "High" | "Urgent";
+
+export type TaskStatus =
+  | "Todo"
+  | "In_Progress"
+  | "Review"
+  | "Done"
+  | "Cancelled";
 
 export type Task = {
-  id: string;
+  task_id: string;
+  project_id: string;
   title: string;
-  project: string;
+  description: string | null;
+  priority: TaskPriority;
   status: TaskStatus;
-  priority: Priority;
-  assignee: string;
-  dueDate: string;
+  assignee_id: string | null;
+  assignee_name?: string | null;
+  created_by: string;
+  creator_name?: string | null;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
 };
+
+export type TaskResponse = {
+  message?: string;
+  task: Task;
+};
+
+export type TasksResponse = {
+  tasks: Task[];
+};
+
+export type CreateTaskData = {
+  title: string;
+  description: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+  assignee_id: string | null;
+  due_date: string | null;
+};
+
+export type UpdateTaskData = Partial<CreateTaskData>;
 
 export type RegisterData = {
   name: string;
@@ -58,10 +90,10 @@ export type UpdateUserData = {
 };
 
 export type UserAvatar = {
-   message: string; 
-   url: string; 
-   public_id: string
-}
+  message: string;
+  url: string;
+  public_id: string;
+};
 
 export type AuthContextType = {
   user: User | null;
@@ -77,7 +109,6 @@ export type AuthContextType = {
 export type AuthProviderProps = {
   children: ReactNode;
 };
-
 
 // export type AuthProviderProps = {
 //   children: ReactNode;
@@ -112,4 +143,3 @@ export type ProjectDetailResponse = {
   message: string;
   projectDetail: Project;
 };
-

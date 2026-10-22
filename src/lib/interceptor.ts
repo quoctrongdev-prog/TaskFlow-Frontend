@@ -135,7 +135,14 @@ export function setupInterceptors(): void {
         setAccessToken(null);
 
         //thông báo cho AuthContext biết phiên đăng nhập không thể tiếp tục.
+        //typeof là operator duy nhất trong JS an toàn khi dùng với biến chưa tồn tại — nó không throw mà trả về string "undefined"
+        //!== undefined để tránh lỗi khi code bị execute ở phía server (Nodejs). 
+        //Nếu là backend, Nodejs thì window không tồn tại, tránh lỗi ReferenceError.
+        //Nếu là frontend, trình duyệt thì sẽ chạy được không bị undefined. 
+        //Và có thể thêm Event mới là "auth:session-expired" để AuthContext biết
+        //và truyền vào hàm handleSessionExpired bên AuthContext.
         if (typeof window !== "undefined") {
+          //Khai báo một custom event để AuthContext lắng nghe và xử lý.
           window.dispatchEvent(new Event("auth:session-expired"));
         }
 

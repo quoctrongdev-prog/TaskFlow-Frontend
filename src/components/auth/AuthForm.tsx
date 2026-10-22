@@ -29,9 +29,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState("");
 
   const router = useRouter();
+  
   //Dưới này đặt tên lại thì là dùng :
   //từ login sang loginUser
-
   const { login: loginUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

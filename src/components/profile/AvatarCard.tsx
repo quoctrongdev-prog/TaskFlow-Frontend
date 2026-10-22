@@ -24,6 +24,8 @@ export default function AvatarCard({
       onUpload(file);
     }
 
+    //xóa lựa chọn hiện tại khỏi input.
+    //Nếu không reset, việc chọn lại đúng file vừa chọn có thể không kích hoạt change, vì giá trị của input không thay đổi.
     input.value = "";
   }
 
