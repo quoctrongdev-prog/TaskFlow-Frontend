@@ -1,3 +1,5 @@
+# .next/ và .env* phải nằm trong .gitignore ngay từ đầu
 node_modules/
 dist/
-.env
+.env.local
+/.next/
