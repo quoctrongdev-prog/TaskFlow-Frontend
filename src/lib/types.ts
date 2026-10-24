@@ -143,3 +143,16 @@ export type ProjectDetailResponse = {
   message: string;
   projectDetail: Project;
 };
+
+export type SendInvitationProject = {
+  message: string;
+  invitation: {
+    project_id: string;
+    email: string;
+    role: string;
+    status: string;
+    invited_by: string;
+    expires_at: string;
+    created_at: string;
+  };
+};

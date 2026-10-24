@@ -9,6 +9,7 @@ import PasswordField from "./PasswordField";
 import { register } from "@/lib/api";
 import ResendVerificationForm from "../mail/ResendVerificationForm";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -50,7 +51,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         console.log("Register response:", data);
 
-        alert(data.message);
+        toast.success(data.message)
+        // alert(data.message);
         setName("");
         setEmail("");
         setPassword("");
@@ -61,7 +63,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           password,
         });
 
-        console.log("Login response:", data);
+        // console.log("Login response:", data);
 
         // alert(data.message);
         // Tạm thời chưa redirect.
@@ -78,6 +80,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
       if (message === "Please verify your email first") {
         setNeedsVerification(true);
       }
+      toast.error(message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -132,7 +135,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </div>
         )}
 
-        {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+        {/* {error && <p className="text-sm font-medium text-red-500">{error}</p>} */}
 
         <button
           type="submit"
