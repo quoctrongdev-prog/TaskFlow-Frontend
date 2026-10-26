@@ -22,6 +22,7 @@ export default function AuthField({
         type={type}
         placeholder={placeholder}
         value={value}
+        autoComplete="email"
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
       />

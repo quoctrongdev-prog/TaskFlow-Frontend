@@ -46,6 +46,12 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
         getProjects(),
       ]);
 
+      console.log("Task API response:", taskData);
+      console.log(
+        "Due dates from API:",
+        taskData.map((task) => task.due_date),
+      );
+
       setTasks(taskData);
 
       const currentProject = projectData.find(

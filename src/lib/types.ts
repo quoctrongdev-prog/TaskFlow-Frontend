@@ -50,6 +50,7 @@ export type RegisterData = {
   name: string;
   email: string;
   password: string;
+  redirectUrl: string | null;
 };
 
 export type LoginData = {

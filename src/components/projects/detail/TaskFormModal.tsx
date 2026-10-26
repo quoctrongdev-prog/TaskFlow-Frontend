@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -37,14 +36,21 @@ export default function TaskFormModal({
   const [priority, setPriority] = useState<TaskPriority>(
     task?.priority ?? "Medium",
   );
-  const [status, setStatus] = useState<TaskStatus>(
-    task?.status ?? "Todo",
-  );
+  const [status, setStatus] = useState<TaskStatus>(task?.status ?? "Todo");
   const [assigneeId, setAssigneeId] = useState(task?.assignee_id ?? "");
   const [dueDate, setDueDate] = useState(
     task?.due_date ? task.due_date.slice(0, 10) : "",
   );
   const [error, setError] = useState("");
+
+  const getToday = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +58,11 @@ export default function TaskFormModal({
 
     if (!title.trim()) {
       setError("Task title is required.");
+      return;
+    }
+
+    if (dueDate && dueDate < getToday()) {
+      setError("Due date cannot be earlier than today.");
       return;
     }
 
@@ -97,7 +108,10 @@ export default function TaskFormModal({
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label htmlFor="task-title" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-title"
+              className="mb-1 block text-sm font-medium"
+            >
               Title
             </label>
             <input
@@ -112,7 +126,10 @@ export default function TaskFormModal({
           </div>
 
           <div>
-            <label htmlFor="task-description" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-description"
+              className="mb-1 block text-sm font-medium"
+            >
               Description
             </label>
             <textarea
@@ -127,40 +144,57 @@ export default function TaskFormModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="task-priority" className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="task-priority"
+                className="mb-1 block text-sm font-medium"
+              >
                 Priority
               </label>
               <select
                 id="task-priority"
                 value={priority}
-                onChange={(event) => setPriority(event.target.value as TaskPriority)}
+                onChange={(event) =>
+                  setPriority(event.target.value as TaskPriority)
+                }
                 className="w-full rounded-lg border border-slate-300 px-3 py-2"
               >
                 {priorities.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="task-status" className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="task-status"
+                className="mb-1 block text-sm font-medium"
+              >
                 Status
               </label>
               <select
                 id="task-status"
                 value={status}
-                onChange={(event) => setStatus(event.target.value as TaskStatus)}
+                onChange={(event) =>
+                  setStatus(event.target.value as TaskStatus)
+                }
                 className="w-full rounded-lg border border-slate-300 px-3 py-2"
               >
                 {statuses.map((item) => (
-                  <option key={item} value={item}>{item.replaceAll("_", " ")}</option>
+                  <option key={item} value={item}>
+                    {item.replaceAll("_", " ")}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
 
           <div>
-            <label htmlFor="task-assignee" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-assignee"
+              className="mb-1 block text-sm font-medium"
+            >
               Assignee user ID (optional)
             </label>
             <input
@@ -176,20 +210,26 @@ export default function TaskFormModal({
           </div>
 
           <div>
-            <label htmlFor="task-due-date" className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-due-date"
+              className="mb-1 block text-sm font-medium"
+            >
               Due date
             </label>
             <input
               id="task-due-date"
               type="date"
               value={dueDate}
+              min={getToday()}
               onChange={(event) => setDueDate(event.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
             />
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-red-600">{error}</p>
+            <p role="alert" className="text-sm text-red-600">
+              {error}
+            </p>
           )}
 
           <div className="flex justify-end gap-3 pt-2">

@@ -14,11 +14,20 @@ export default function VerifyEmailPage() {
   //Lấy token từ query string và truyền token vào API verifyEmail.
   const searchParams = useSearchParams();
 
-  const token = searchParams.get("token");
-
   const [status, setStatus] = useState<VerifyStatus>("verifying");
 
   const [message, setMessage] = useState("");
+
+  const token = searchParams.get("token");
+  const rawRedirect = searchParams.get("redirect");
+
+  const redirectUrl =
+    rawRedirect &&
+    rawRedirect.startsWith("/") &&
+    !rawRedirect.startsWith("//") &&
+    !rawRedirect.includes("\\")
+      ? rawRedirect
+      : null;
 
   useEffect(() => {
     if (!token) {
@@ -54,7 +63,7 @@ export default function VerifyEmailPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
       {status === "verifying" && <VerifyEmailLoading />}
 
-      {status === "success" && <VerifyEmailSuccess message={message} />}
+      {status === "success" && <VerifyEmailSuccess message={message}  redirectUrl={redirectUrl}/>}
 
       {status === "error" && <VerifyEmailError message={message} />}
     </main>
