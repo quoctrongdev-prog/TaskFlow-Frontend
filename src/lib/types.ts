@@ -50,6 +50,7 @@ export type RegisterData = {
   name: string;
   email: string;
   password: string;
+  redirectUrl: string | null;
 };
 
 export type LoginData = {
@@ -142,4 +143,17 @@ export type ProjectResponse = {
 export type ProjectDetailResponse = {
   message: string;
   projectDetail: Project;
+};
+
+export type SendInvitationProject = {
+  message: string;
+  invitation: {
+    project_id: string;
+    email: string;
+    role: string;
+    status: string;
+    invited_by: string;
+    expires_at: string;
+    created_at: string;
+  };
 };

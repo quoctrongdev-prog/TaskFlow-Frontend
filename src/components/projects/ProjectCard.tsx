@@ -134,7 +134,7 @@ export default function ProjectCard({ project, onChanged }: ProjectCardProps) {
 
           {project.created_by_name && (
             <span className="mt-4 inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-              {project.created_by_name}
+              Created by {project.created_by_name}
             </span>
           )}
         </Link>

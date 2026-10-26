@@ -111,9 +111,11 @@ export default function TaskCard({
         {task.due_date && (
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays size={14} />
-            {new Date(
-              `${task.due_date.slice(0, 10)}T00:00:00`,
-            ).toLocaleDateString("vi-VN")}
+            {(() => {
+              const [year, month, day] = task.due_date.slice(0, 10).split("-");
+
+              return `${day}/${month}/${year}`;
+            })()}
           </span>
         )}
       </div>

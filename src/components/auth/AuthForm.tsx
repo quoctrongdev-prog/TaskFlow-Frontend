@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthField from "./AuthField";
 import PasswordField from "./PasswordField";
 import { register } from "@/lib/api";
 import ResendVerificationForm from "../mail/ResendVerificationForm";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -20,7 +21,6 @@ type ApiError = {
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,59 +29,73 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState("");
 
   const router = useRouter();
-  
-  //Dưới này đặt tên lại thì là dùng :
-  //từ login sang loginUser
   const { login: loginUser } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Lấy URL cần quay lại sau khi đăng nhập/đăng ký.
+  // Chỉ chấp nhận đường dẫn nội bộ để tránh open redirect.
+  const searchParams = useSearchParams();
+
+  const rawRedirect = searchParams.get("redirect");
+
+  const redirectUrl =
+    rawRedirect &&
+    rawRedirect.startsWith("/") &&
+    !rawRedirect.startsWith("//") &&
+    !rawRedirect.includes("\\")
+      ? rawRedirect
+      : null;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setError("");
+    setNeedsVerification(false);
     setLoading(true);
-
     try {
       if (mode === "register") {
         const data = await register({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
           password,
+          redirectUrl
         });
 
-        console.log("Register response:", data);
+        toast.success(data.message || "Registration successful!");
 
-        alert(data.message);
-        setName("");
-        setEmail("");
-        setPassword("");
-        router.push("/login");
+        // Giữ redirect khi chuyển từ đăng ký sang đăng nhập.
+        const loginUrl = redirectUrl
+          ? `/login?redirect=${encodeURIComponent(redirectUrl)}`
+          : "/login";
+
+        router.push(loginUrl);
       } else {
-        const data = await loginUser({
-          email,
+        await loginUser({
+          email: email.trim().toLowerCase(),
           password,
         });
 
-        console.log("Login response:", data);
+        toast.success("Login successful!");
 
-        // alert(data.message);
-        // Tạm thời chưa redirect.
-        // Bước tiếp theo sẽ xử lý accessToken + auth state.
-        router.push("/dashboard");
+        // Có link mời thì quay lại link mời.
+        // Đăng nhập bình thường thì vào dashboard.
+        router.push(redirectUrl ?? "/dashboard");
       }
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiError>;
+    } catch (err) {
+      const axiosError = err as AxiosError<ApiError>;
+      const message =
+        axiosError.response?.data?.message || "Something went wrong.";
 
-      const message = axiosError.response?.data?.message;
-
-      setError(message || "Something went wrong.");
+      setError(message);
 
       if (message === "Please verify your email first") {
         setNeedsVerification(true);
       }
+
+      toast.error(message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <>
@@ -132,7 +146,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </div>
         )}
 
-        {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
+
+        {needsVerification && mode === "login" && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            Please verify your email before signing in.
+          </div>
+        )}
 
         <button
           type="submit"
@@ -154,7 +178,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
           ? "Already have an account?"
           : "Don't have an account?"}{" "}
         <Link
-          href={mode === "register" ? "/login" : "/register"}
+          href={
+            mode === "register"
+              ? `/login${redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`
+              : `/register${redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`
+          }
           className="font-semibold text-brand-600"
         >
           {mode === "register" ? "Sign in" : "Create one"}

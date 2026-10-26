@@ -18,6 +18,7 @@ import type { CreateTaskData, Project, Task, TaskStatus } from "@/lib/types";
 
 import TaskCard from "./TaskCard";
 import TaskFormModal from "./TaskFormModal";
+import InviteMemberButton from "../InviteMemberButton";
 
 type ProjectTasksPageProps = {
   projectId: string;
@@ -44,6 +45,12 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
         getTasks(projectId),
         getProjects(),
       ]);
+
+      console.log("Task API response:", taskData);
+      console.log(
+        "Due dates from API:",
+        taskData.map((task) => task.due_date),
+      );
 
       setTasks(taskData);
 
@@ -166,6 +173,8 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
             <RefreshCw size={16} />
             Refresh
           </button>
+
+          <InviteMemberButton projectId={projectId} />
 
           <button
             type="button"

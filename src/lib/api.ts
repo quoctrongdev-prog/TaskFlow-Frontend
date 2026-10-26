@@ -9,6 +9,7 @@ import type {
   ProjectDetailResponse,
   ProjectResponse,
   RegisterData,
+  SendInvitationProject,
   Task,
   TaskResponse,
   TasksResponse,
@@ -202,7 +203,7 @@ export async function deleteProject(projectId: string): Promise<void> {
 }
 
 export async function sendProjectInvitation(projectId: string, email: string) {
-  const response = await api.post(`/project/send-invitation/${projectId}`, {
+  const response = await api.post<SendInvitationProject>(`/project/send-invitation/${projectId}`, {
     email,
   });
 
@@ -283,3 +284,5 @@ export async function updateTaskStatus(
 export async function deleteTask(taskId: string): Promise<void> {
   await api.delete(`/tasks/${taskId}`);
 }
+
+
