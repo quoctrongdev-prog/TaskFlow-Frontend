@@ -8,17 +8,25 @@ import { useAuth } from "@/context/AuthContext";
 import {
   createTask,
   deleteTask,
+  getProjectProgress,
   getProjects,
   getTasks,
   updateTask,
   updateTaskStatus,
 } from "@/lib/api";
 
-import type { CreateTaskData, Project, Task, TaskStatus } from "@/lib/types";
+import type {
+  CreateTaskData,
+  Project,
+  ProjectProgress,
+  Task,
+  TaskStatus,
+} from "@/lib/types";
 
 import TaskCard from "./TaskCard";
 import TaskFormModal from "./TaskFormModal";
 import InviteMemberButton from "../InviteMemberButton";
+import ProjectMembersSidebar from "./ProjectMembersSidebar";
 
 type ProjectTasksPageProps = {
   projectId: string;
@@ -33,6 +41,9 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [projectName, setProjectName] = useState("");
+  const [progressData, setProgressData] = useState<ProjectProgress | null>(
+    null,
+  );
 
   const loadTasks = useCallback(async () => {
     if (authLoading || !user) return;
@@ -41,18 +52,17 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
       setLoading(true);
       setError("");
 
-      const [taskData, projectData] = await Promise.all([
+      const [taskData, projectData, progressResult] = await Promise.all([
         getTasks(projectId),
         getProjects(),
+        getProjectProgress(projectId).catch((err) => {
+          console.error("Get project progress error:", err);
+          return null;
+        }),
       ]);
 
-      console.log("Task API response:", taskData);
-      console.log(
-        "Due dates from API:",
-        taskData.map((task) => task.due_date),
-      );
-
       setTasks(taskData);
+      setProgressData(progressResult);
 
       const currentProject = projectData.find(
         (project) => project.project_id === projectId,
@@ -122,6 +132,12 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
           item.task_id === task.task_id ? { ...item, ...updatedTask } : item,
         ),
       );
+      try {
+        const latestProgress = await getProjectProgress(projectId);
+        setProgressData(latestProgress);
+      } catch (error) {
+        console.error("Refresh project progress error:", error);
+      }
     } catch (err) {
       console.error("Update task status error:", err);
       window.alert(
@@ -174,6 +190,8 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
             Refresh
           </button>
 
+          <ProjectMembersSidebar projectId={projectId} />
+
           <InviteMemberButton projectId={projectId} />
 
           <button
@@ -186,6 +204,41 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
           </button>
         </div>
       </header>
+      {progressData && (
+        <section
+          aria-label="Project completion progress"
+          className="mt-6 rounded-2xl border border-slate-200 bg-white p-5"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-semibold text-slate-900">Project progress</h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {progressData.completed_tasks} of {progressData.total_tasks}{" "}
+                tasks completed
+              </p>
+            </div>
+
+            <span className="text-2xl font-bold text-indigo-600">
+              {progressData.progress}%
+            </span>
+          </div>
+
+          <div
+            role="progressbar"
+            aria-label="Project completion"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressData.progress}
+            className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"
+          >
+            <div
+              className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+              style={{ width: `${progressData.progress}%` }}
+            />
+          </div>
+        </section>
+      )}
 
       {error && (
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4">
@@ -237,6 +290,7 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
 
       {formOpen && (
         <TaskFormModal
+          projectId={projectId}
           task={editingTask}
           loading={saving}
           onClose={() => {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FolderKanban } from "lucide-react";
-import { Project } from "@/lib/types";
-import { updateProject } from "@/lib/api";
+import { Project, ProjectProgress } from "@/lib/types";
+import { getProjectProgress, updateProject } from "@/lib/api";
 import ProjectActions from "./ProjectActions";
 
 type ProjectCardProps = {
@@ -17,6 +17,35 @@ export default function ProjectCard({ project, onChanged }: ProjectCardProps) {
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description ?? "");
   const [saving, setSaving] = useState(false);
+
+  const [progressData, setProgressData] = useState<ProjectProgress | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProgress() {
+      try {
+        const data = await getProjectProgress(project.project_id);
+
+        if (!cancelled) {
+          setProgressData(data);
+        }
+      } catch (error) {
+        console.error("Get project progress error:", error);
+      }
+    }
+
+    void loadProgress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [project.project_id]);
+
+  const initial = name?.trim().charAt(0).toUpperCase();
+  const avatarUrl = project.created_by_avatar_url;
 
   async function handleUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -122,15 +151,56 @@ export default function ProjectCard({ project, onChanged }: ProjectCardProps) {
         </form>
       ) : (
         <Link href={`/projects/${project.project_id}`} className="block pr-8">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
-            <FolderKanban size={21} />
-          </div>
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              initial || <FolderKanban size={20} />
+            )}
+          </span>
 
           <h2 className="mt-5 font-bold text-slate-900">{project.name}</h2>
 
           <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">
             {project.description || "No description provided."}
           </p>
+
+          {progressData && (
+            <div className="mt-5">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-medium text-slate-600">
+                  Progress
+                </span>
+
+                <span className="text-xs font-semibold text-indigo-600">
+                  {progressData.progress}%
+                </span>
+              </div>
+
+              <div
+                role="progressbar"
+                aria-label={`Progress of ${project.name}`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progressData.progress}
+                className="h-2 overflow-hidden rounded-full bg-slate-100"
+              >
+                <div
+                  className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                  style={{ width: `${progressData.progress}%` }}
+                />
+              </div>
+
+              <p className="mt-2 text-xs text-slate-500">
+                {progressData.completed_tasks} of {progressData.total_tasks}{" "}
+                tasks completed
+              </p>
+            </div>
+          )}
 
           {project.created_by_name && (
             <span className="mt-4 inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">

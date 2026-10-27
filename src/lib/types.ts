@@ -19,8 +19,9 @@ export type Task = {
   status: TaskStatus;
   assignee_id: string | null;
   assignee_name?: string | null;
-  created_by: string;
+  assignee_avatar_url?: string | null; // Thêm dòng này
   creator_name?: string | null;
+  created_by: string;
   due_date: string | null;
   created_at: string;
   updated_at: string;
@@ -132,7 +133,10 @@ export type Project = {
   created_at: string;
   updated_at?: string;
   role?: "Admin" | "Member";
-  created_by_name: string; // Thêm trường này để lưu tên người tạo
+  created_by_name: string;
+  created_by_avatar_url?: string | null;
+  image_url: string | null;
+  due_date: string | null;
 };
 
 export type ProjectResponse = {
@@ -156,4 +160,18 @@ export type SendInvitationProject = {
     expires_at: string;
     created_at: string;
   };
+};
+
+export type ProjectMember = {
+  user_id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+  role: "Admin" | "Member";
+};
+
+export type ProjectProgress = {
+  total_tasks: number;
+  completed_tasks: number;
+  progress: number;
 };

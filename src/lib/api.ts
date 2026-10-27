@@ -7,6 +7,8 @@ import type {
   MessageResponse,
   Project,
   ProjectDetailResponse,
+  ProjectMember,
+  ProjectProgress,
   ProjectResponse,
   RegisterData,
   SendInvitationProject,
@@ -137,6 +139,18 @@ export async function uploadAvatar(file: File): Promise<UserAvatar> {
   return response.data;
 }
 
+export const uploadProjectImage = async (projectId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await api.post(
+    `/avatar/${projectId}/upload-image`,
+    formData,
+  );
+
+  return data;
+};
+
 // export async function getUserProfile() {
 //   const response = await api.get("/users/user-profile");
 
@@ -167,10 +181,27 @@ export async function getProjects(): Promise<Project[]> {
   return Array.isArray(response.data.project) ? response.data.project : [];
 }
 
+export const getProjectMembers = async (
+  projectId: string,
+): Promise<ProjectMember[]> => {
+  const { data } = await api.get(`/project/${projectId}/members`);
+
+  return data.members;
+};
+
+export const getProjectProgress = async (
+  projectId: string,
+): Promise<ProjectProgress> => {
+  const { data } = await api.get(`/project/${projectId}/progress`);
+
+  return data.progress;
+};
+
 // Tạo project
 export async function createProject(data: {
   name: string;
   description: string;
+  due_date: string | null;
 }): Promise<Project> {
   const response = await api.post<ProjectResponse>(
     "/project/create-project",
@@ -179,6 +210,7 @@ export async function createProject(data: {
 
   return response.data.project as Project;
 }
+
 
 // Lấy chi tiết project
 export async function getProjectDetail(projectId: string): Promise<Project> {
@@ -203,9 +235,12 @@ export async function deleteProject(projectId: string): Promise<void> {
 }
 
 export async function sendProjectInvitation(projectId: string, email: string) {
-  const response = await api.post<SendInvitationProject>(`/project/send-invitation/${projectId}`, {
-    email,
-  });
+  const response = await api.post<SendInvitationProject>(
+    `/project/send-invitation/${projectId}`,
+    {
+      email,
+    },
+  );
 
   return response.data;
 }
@@ -284,5 +319,3 @@ export async function updateTaskStatus(
 export async function deleteTask(taskId: string): Promise<void> {
   await api.delete(`/tasks/${taskId}`);
 }
-
-

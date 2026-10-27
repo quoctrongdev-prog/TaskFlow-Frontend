@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { LoaderCircle } from "lucide-react";
+import { getProjectMembers } from "@/lib/api";
 import type {
   Task,
   TaskPriority,
   TaskStatus,
   CreateTaskData,
+  ProjectMember,
 } from "@/lib/types";
+import AssigneeSelect from "./AssigneeSelect";
 
 type TaskFormModalProps = {
+  projectId: string;
   task?: Task;
   loading: boolean;
   onClose: () => void;
@@ -26,6 +31,7 @@ const statuses: TaskStatus[] = [
 ];
 
 export default function TaskFormModal({
+  projectId,
   task,
   loading,
   onClose,
@@ -41,6 +47,9 @@ export default function TaskFormModal({
   const [dueDate, setDueDate] = useState(
     task?.due_date ? task.due_date.slice(0, 10) : "",
   );
+  const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(true);
+  const [membersError, setMembersError] = useState("");
   const [error, setError] = useState("");
 
   const getToday = () => {
@@ -51,6 +60,39 @@ export default function TaskFormModal({
 
     return `${year}-${month}-${day}`;
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMembers() {
+      try {
+        setMembersLoading(true);
+        setMembersError("");
+
+        const data = await getProjectMembers(projectId);
+
+        if (!cancelled) {
+          setMembers(data);
+        }
+      } catch (err) {
+        console.error("Load project members error:", err);
+
+        if (!cancelled) {
+          setMembersError("Unable to load project members.");
+        }
+      } finally {
+        if (!cancelled) {
+          setMembersLoading(false);
+        }
+      }
+    }
+
+    void loadMembers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,13 +108,18 @@ export default function TaskFormModal({
       return;
     }
 
+    if (membersError) {
+      setError("Please load project members before saving.");
+      return;
+    }
+
     try {
       await onSubmit({
         title: title.trim(),
         description: description.trim(),
         priority,
         status,
-        assignee_id: assigneeId.trim() || null,
+        assignee_id: assigneeId || null,
         due_date: dueDate || null,
       });
     } catch (err) {
@@ -190,24 +237,13 @@ export default function TaskFormModal({
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="task-assignee"
-              className="mb-1 block text-sm font-medium"
-            >
-              Assignee user ID (optional)
-            </label>
-            <input
-              id="task-assignee"
-              value={assigneeId}
-              onChange={(event) => setAssigneeId(event.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="Paste a project member's user ID"
-            />
-            <p className="mt-1 text-xs text-slate-500">
-              Người được giao phải là thành viên của project.
-            </p>
-          </div>
+          <AssigneeSelect
+            members={members}
+            value={assigneeId}
+            onChange={setAssigneeId}
+            disabled={loading || Boolean(membersError)}
+            loading={membersLoading}
+          />
 
           <div>
             <label
@@ -243,7 +279,7 @@ export default function TaskFormModal({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || membersLoading || !!membersError}
               className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               {loading ? "Saving..." : task ? "Save changes" : "Create task"}

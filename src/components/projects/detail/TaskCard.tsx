@@ -103,19 +103,35 @@ export default function TaskCard({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
-        <span className="inline-flex items-center gap-1.5">
-          <UserRound size={14} />
-          {task.assignee_name || (task.assignee_id ? "Assigned" : "Unassigned")}
-        </span>
+        <div className="inline-flex min-w-0 items-center gap-2">
+          {task.assignee_avatar_url ? (
+            <img
+              src={task.assignee_avatar_url}
+              alt=""
+              className="h-6 w-6 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+              <UserRound size={14} />
+            </span>
+          )}
+
+          <span className="truncate">
+            {task.assignee_name ||
+              (task.assignee_id ? "Assigned" : "Unassigned")}
+          </span>
+        </div>
 
         {task.due_date && (
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays size={14} />
+            Due  {" "}
             {(() => {
               const [year, month, day] = task.due_date.slice(0, 10).split("-");
 
               return `${day}/${month}/${year}`;
             })()}
+
           </span>
         )}
       </div>

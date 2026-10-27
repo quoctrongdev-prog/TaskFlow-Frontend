@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { createProject } from "@/lib/api";
+import { useEffect, useState, type FormEvent } from "react";
+import { createProject, uploadProjectImage } from "@/lib/api";
 
 type CreateProjectModalProps = {
   onClose: () => void;
@@ -16,6 +16,17 @@ export default function CreateProjectModal({
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,14 +42,15 @@ export default function CreateProjectModal({
     try {
       setLoading(true);
 
-      const projectData = {
+      const project = await createProject({
         name: name.trim(),
         description: description.trim(),
-      };
+        due_date: dueDate || null,
+      });
 
-      // console.log("Project data:", projectData);
-
-      await createProject(projectData);
+      if (imageFile) {
+        await uploadProjectImage(project.project_id, imageFile);
+      }
 
       onSuccess();
       onClose();
@@ -114,6 +126,72 @@ export default function CreateProjectModal({
               placeholder="Describe your project"
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="project-due-date"
+              className="mb-1.5 block text-sm font-medium text-slate-700"
+            >
+              Due date
+            </label>
+
+            <input
+              id="project-due-date"
+              type="date"
+              value={dueDate}
+              onChange={(event) => setDueDate(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="project-image"
+              className="mb-1.5 block text-sm font-medium text-slate-700"
+            >
+              Project image
+            </label>
+
+            <input
+              id="project-image"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+
+                if (!file) {
+                  setImageFile(null);
+                  setImagePreview("");
+                  return;
+                }
+
+                if (!file.type.startsWith("image/")) {
+                  setError("Please select an image file.");
+                  event.target.value = "";
+                  return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                  setError("Image must be 5 MB or smaller.");
+                  event.target.value = "";
+                  return;
+                }
+
+                setError("");
+                setImageFile(file);
+                setImagePreview(URL.createObjectURL(file));
+              }}
+              className="w-full text-sm text-slate-600"
+            />
+
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Project image preview"
+                className="mt-3 h-40 w-full rounded-xl object-cover"
+              />
+            )}
           </div>
 
           {error && (
