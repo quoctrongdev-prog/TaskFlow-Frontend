@@ -9,7 +9,7 @@ import CreateProjectModal from "./CreateProjectModal";
 
 export default function ProjectsPage() {
   const { user, loading } = useAuth();
-
+  const [projectCount, setProjectCount] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -25,11 +25,15 @@ export default function ProjectsPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <ProjectsHeader onCreate={() => setShowCreateModal(true)} />
+      <ProjectsHeader
+        onCreate={() => setShowCreateModal(true)}
+        projectCount={projectCount}
+      />
 
       <ProjectGrid
         refreshKey={refreshKey}
         onCreate={() => setShowCreateModal(true)}
+        onProjectCountChange={setProjectCount}
       />
 
       {showCreateModal && (

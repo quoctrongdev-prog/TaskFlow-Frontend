@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { MoreHorizontal, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { deleteProject } from "@/lib/api";
 
 type ProjectActionsProps = {
@@ -17,6 +17,24 @@ export default function ProjectActions({
 }: ProjectActionsProps) {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleOutsideClick(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [open]);
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -39,7 +57,7 @@ export default function ProjectActions({
   }
 
   return (
-    <div className="absolute right-5 top-5 z-20">
+    <div ref={menuRef} className="absolute right-3 top-3 z-20">
       <button
         type="button"
         aria-label="Project options"
@@ -48,11 +66,11 @@ export default function ProjectActions({
         onClick={() => setOpen((previous) => !previous)}
         className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
       >
-        <MoreHorizontal size={22} />
+        <MoreVertical size={22} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+        <div className="absolute right-[-6px] -top-14 z-50 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
           <button
             type="button"
             onClick={() => {

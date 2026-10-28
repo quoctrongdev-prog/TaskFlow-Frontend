@@ -9,11 +9,13 @@ import { Project } from "@/lib/types";
 type ProjectGridProps = {
   refreshKey: number;
   onCreate: () => void;
+  onProjectCountChange: (count: number) => void;
 };
 
 export default function ProjectGrid({
   refreshKey,
   onCreate,
+  onProjectCountChange,
 }: ProjectGridProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,7 @@ export default function ProjectGrid({
 
       const data = await getProjects();
       setProjects(data);
+      onProjectCountChange(data.length);
     } catch {
       setError("Unable to load projects. Please try again.");
     } finally {
@@ -61,7 +64,11 @@ export default function ProjectGrid({
   return (
     <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       {projects.map((project) => (
-        <ProjectCard key={project.project_id} project={project} />
+        <ProjectCard
+          key={project.project_id}
+          project={project}
+          onChanged={loadProjects}
+        />
       ))}
 
       <CreateProjectCard onClick={onCreate} />

@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, LoaderCircle, Plus, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  FolderKanban,
+  LoaderCircle,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -44,6 +50,8 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
   const [progressData, setProgressData] = useState<ProjectProgress | null>(
     null,
   );
+  const [projectImage, setProjectImage] = useState<string | null>(null);
+  const [dueDate, setDueDate] = useState<string | null>(null);
 
   const loadTasks = useCallback(async () => {
     if (authLoading || !user) return;
@@ -69,6 +77,8 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
       );
 
       setProjectName(currentProject?.name ?? "Project");
+      setProjectImage(currentProject?.image_url ?? null);
+      setDueDate(currentProject?.due_date ?? null);
     } catch (err) {
       console.error("Get tasks error:", err);
       setError("Unable to load tasks. Please try again.");
@@ -147,6 +157,11 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
     }
   }
 
+  function formatDueDate(date: string) {
+    const [year, month, day] = date.slice(0, 10).split("-");
+    return `${day}/${month}/${year}`;
+  }
+
   function openCreateForm() {
     setEditingTask(undefined);
     setFormOpen(true);
@@ -159,51 +174,81 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
-      <Link
-        href="/projects"
-        className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600"
-      >
-        <ArrowLeft size={16} />
-        Back to projects
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-indigo-600"
+        >
+          <ArrowLeft size={16} />
+          Back to projects
+        </Link>
+      </div>
 
-      <header className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            {" "}
-            {projectName ? `${projectName}` : "Loading..."}
-          </h1>
+      <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {/* Project cover */}
+          <div className="aspect-video max-h-64 w-full bg-slate-100">
+            {projectImage ? (
+              <img
+                src={projectImage}
+                alt={`Cover image for ${projectName}`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-slate-400">
+                <FolderKanban size={48} strokeWidth={1.5} />
+              </div>
+            )}
+          </div>
 
-          <p className="mt-1 text-sm text-slate-500">
-            {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
-          </p>
-        </div>
+          {/* Due date */}
+          <div className="flex items-center justify-between gap-3 border-t border-slate-100 bg-white p-4 sm:p-5">
+            <div>
+              <p className="text-sm font-medium text-slate-500">
+                Project due date
+              </p>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => void loadTasks()}
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
+              {dueDate ? (
+                <time
+                  dateTime={dueDate.slice(0, 10)}
+                  className="mt-1 block font-semibold text-slate-900"
+                >
+                  {formatDueDate(dueDate)}
+                </time>
+              ) : (
+                <p className="mt-1 text-sm text-slate-400">No due date set</p>
+              )}
+            </div>
+          </div>
+        </section>
+        <header className="flex min-w-0 flex-col justify-between gap-6 p-5 sm:p-6">
+          <div className="min-w-0">
+            <h1 className="mt-2 break-words text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              {projectName || "Loading..."}
+            </h1>
 
-          <ProjectMembersSidebar projectId={projectId} />
+            <div className="mt-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+              {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+            </div>
+          </div>
 
-          <InviteMemberButton projectId={projectId} />
+          <div className="flex flex-wrap justify-start gap-2">
+            <ProjectMembersSidebar projectId={projectId} />
 
-          <button
-            type="button"
-            onClick={openCreateForm}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-          >
-            <Plus size={17} />
-            Create task
-          </button>
-        </div>
-      </header>
+            <InviteMemberButton projectId={projectId} />
+
+            <button
+              type="button"
+              onClick={openCreateForm}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            >
+              <Plus size={17} />
+              Create task
+            </button>
+          </div>
+        </header>
+      </div>
+
       {progressData && (
         <section
           aria-label="Project completion progress"
@@ -254,6 +299,18 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
           </button>
         </div>
       )}
+
+      <div className="mt-6 flex justify-end">
+        <button
+          type="button"
+          onClick={() => void loadTasks()}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+        >
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          Refresh tasks
+        </button>
+      </div>
 
       {loading ? (
         <div className="flex min-h-64 items-center justify-center gap-2 text-slate-500">

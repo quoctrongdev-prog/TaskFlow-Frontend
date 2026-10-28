@@ -211,7 +211,6 @@ export async function createProject(data: {
   return response.data.project as Project;
 }
 
-
 // Lấy chi tiết project
 export async function getProjectDetail(projectId: string): Promise<Project> {
   const response = await api.get<ProjectDetailResponse>(
@@ -224,7 +223,7 @@ export async function getProjectDetail(projectId: string): Promise<Project> {
 // Cập nhật project
 export async function updateProject(
   projectId: string,
-  data: { name: string; description: string },
+  data: { name: string; description: string; due_date: string | null },
 ): Promise<void> {
   await api.patch(`/project/update/${projectId}`, data);
 }

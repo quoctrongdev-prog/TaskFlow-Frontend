@@ -139,6 +139,12 @@ export type Project = {
   due_date: string | null;
 };
 
+export type UpdateProject = {
+  name: string; 
+  description: string, 
+  due_date?: string | null 
+}
+
 export type ProjectResponse = {
   message: string;
   project: Project | Project[];
