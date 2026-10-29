@@ -1,6 +1,12 @@
 "use client";
 
-import { CalendarDays, Pencil, Trash2, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  MessageCircle,
+  Pencil,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import type { Task, TaskStatus } from "@/lib/types";
 
 type TaskCardProps = {
@@ -8,6 +14,7 @@ type TaskCardProps = {
   onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (status: TaskStatus) => void;
+  onComments: () => void;
 };
 
 const statuses: TaskStatus[] = [
@@ -38,6 +45,7 @@ export default function TaskCard({
   onEdit,
   onDelete,
   onStatusChange,
+  onComments,
 }: TaskCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 transition hover:shadow-sm">
@@ -125,22 +133,31 @@ export default function TaskCard({
         {task.due_date && (
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays size={14} />
-            Due  {" "}
+            Due{" "}
             {(() => {
               const [year, month, day] = task.due_date.slice(0, 10).split("-");
 
               return `${day}/${month}/${year}`;
             })()}
-
           </span>
         )}
       </div>
-
-      {task.creator_name && (
-        <p className="mt-3 text-xs text-slate-400">
-          Created by {task.creator_name}
-        </p>
-      )}
+      <div className="flex gap-2 items-center justify-between">
+        {task.creator_name && (
+          <p className="mt-3 text-xs text-slate-400">
+            Created by {task.creator_name}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={onComments}
+          aria-label={`View comments for ${task.title}`}
+          title="View comments"
+          className="rounded-lg p-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+        >
+          <MessageCircle size={16} />
+        </button>
+      </div>
     </article>
   );
 }

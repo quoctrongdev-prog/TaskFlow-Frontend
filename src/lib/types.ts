@@ -181,3 +181,30 @@ export type ProjectProgress = {
   completed_tasks: number;
   progress: number;
 };
+
+
+
+export type TaskComment = {
+  comment_id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  user_name?: string;
+  user_avatar_url?: string | null;
+};
+
+export type CommentsResponse = {
+  message: string;
+  comments: TaskComment[];
+};
+
+export type CommentResponse = {
+  message: string;
+  comment: TaskComment;
+};
+
+export type CreateCommentData = {
+  content: string;
+};

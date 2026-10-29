@@ -2,6 +2,9 @@ import { api, apiAuth, apiMail, apiRefresh } from "./client";
 import type {
   AuthResponse,
   ChangePasswordData,
+  CommentResponse,
+  CommentsResponse,
+  CreateCommentData,
   CreateTaskData,
   LoginData,
   MessageResponse,
@@ -13,6 +16,7 @@ import type {
   RegisterData,
   SendInvitationProject,
   Task,
+  TaskComment,
   TaskResponse,
   TasksResponse,
   UpdateTaskData,
@@ -317,4 +321,41 @@ export async function updateTaskStatus(
 /* Xóa task */
 export async function deleteTask(taskId: string): Promise<void> {
   await api.delete(`/tasks/${taskId}`);
+}
+
+export async function getTaskComments(taskId: string): Promise<TaskComment[]> {
+  const response = await api.get<CommentsResponse>(`/comments/tasks/${taskId}/`);
+
+  return response.data.comments;
+}
+
+export async function createComment(
+  taskId: string,
+  data: CreateCommentData,
+): Promise<TaskComment> {
+  const response = await api.post<CommentResponse>(
+    `/comments/tasks/${taskId}/`,
+    data,
+  );
+
+  return response.data.comment;
+}
+
+export async function updateComment(
+  commentId: string,
+  data: CreateCommentData,
+): Promise<TaskComment> {
+  const response = await api.patch<CommentResponse>(
+    `/comments/${commentId}`,
+    data,
+  );
+
+  return response.data.comment;
+}
+
+
+export async function deleteComment(
+  commentId: string,
+): Promise<void> {
+  await api.delete(`/comments/${commentId}`);
 }

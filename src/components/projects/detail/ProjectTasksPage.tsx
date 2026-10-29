@@ -33,6 +33,7 @@ import TaskCard from "./TaskCard";
 import TaskFormModal from "./TaskFormModal";
 import InviteMemberButton from "../InviteMemberButton";
 import ProjectMembersSidebar from "./ProjectMembersSidebar";
+import TaskCommentsModal from "./TaskCommentsModal";
 
 type ProjectTasksPageProps = {
   projectId: string;
@@ -52,6 +53,7 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
   );
   const [projectImage, setProjectImage] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
+  const [commentsTask, setCommentsTask] = useState<Task | null>(null);
 
   const loadTasks = useCallback(async () => {
     if (authLoading || !user) return;
@@ -340,6 +342,7 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
               onEdit={() => openEditForm(task)}
               onDelete={() => void handleDeleteTask(task)}
               onStatusChange={(status) => void handleStatusChange(task, status)}
+              onComments={() => setCommentsTask(task)}
             />
           ))}
         </section>
@@ -355,6 +358,13 @@ export default function ProjectTasksPage({ projectId }: ProjectTasksPageProps) {
             setEditingTask(undefined);
           }}
           onSubmit={handleSaveTask}
+        />
+      )}
+      
+      {commentsTask && (
+        <TaskCommentsModal
+          task={commentsTask}
+          onClose={() => setCommentsTask(null)}
         />
       )}
     </main>
